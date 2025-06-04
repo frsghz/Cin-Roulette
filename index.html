@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>CinéRoulette 🎥</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background: linear-gradient(to bottom, #000000, #1a1a1a);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #FFD700;
+      text-shadow: 0 0 15px #FFD700;
+      margin-bottom: 10px;
+    }
+
+    #movie, #myListView {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #FFD700;
+      border-radius: 10px;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      transition: all 0.5s ease;
+      opacity: 0;
+      margin-bottom: 10px;
+    }
+
+    #movie.active, #myListView.active {
+      opacity: 1;
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #FFD700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #000;
+      font-weight: bold;
+      box-shadow: 0 0 10px #FFD700;
+      transition: 0.3s;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #FFD700;
+    }
+
+    .title {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .genre {
+      font-style: italic;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+
+    .synopsis {
+      font-size: 1.1em;
+    }
+
+    .watch {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    .movieItem {
+      cursor: pointer;
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #222;
+      border-radius: 5px;
+    }
+
+    .movieItem:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>CinéRoulette 🎞️</h1>
+
+  <div id="movie">
+    <div class="title"></div>
+    <div class="genre"></div>
+    <div class="synopsis"></div>
+    <div class="watch" style="display:none;"></div>
+    <button onclick="addToList()">➕ Ajouter à ma liste</button>
+  </div>
+
+  <div id="myListView" style="display:none;"></div>
+
+  <button onclick="generateMovie()">🎲 Découvre un film</button>
+  <button onclick="viewMyList()">📜 Voir ma liste</button>
+
+  <script>
+    const movies = [
+  { title: "The Godfather", genre: "Crime / Drama", synopsis: "L’ascension d’une famille mafieuse dans l’Amérique des années 40.", watch: "Netflix" },
+  { title: "Pulp Fiction", genre: "Crime / Thriller", synopsis: "Des histoires entremêlées de gangsters, boxeurs et malfrats à Los Angeles.", watch: "Amazon Prime" },
+  { title: "The Shawshank Redemption", genre: "Drame / Prison", synopsis: "Deux prisonniers développent une amitié sur plusieurs décennies.", watch: "Netflix" },
+  { title: "Inception", genre: "Science-fiction / Action", synopsis: "Un voleur infiltre les rêves pour implanter une idée dans l'esprit d’un homme.", watch: "Netflix" },
+  { title: "Fight Club", genre: "Drame / Psychologique", synopsis: "Un homme fonde un club secret où les frustrations s’expriment par les poings.", watch: "Disney+" },
+  { title: "The Dark Knight", genre: "Action / Super-héros", synopsis: "Batman affronte le Joker dans un combat pour l’âme de Gotham.", watch: "HBO Max" },
+  { title: "Forrest Gump", genre: "Drame / Romance", synopsis: "Un homme simple vit des événements clés de l’histoire américaine.", watch: "Paramount+" },
+  { title: "The Matrix", genre: "Science-fiction / Action", synopsis: "Un hacker découvre que le monde est une illusion contrôlée par des machines.", watch: "Netflix" },
+  { title: "Interstellar", genre: "Science-fiction / Drame", synopsis: "Des astronautes voyagent à travers un trou noir pour sauver l’humanité.", watch: "Amazon Prime" },
+  { title: "Gladiator", genre: "Action / Historique", synopsis: "Un général romain devient gladiateur pour venger sa famille.", watch: "Netflix" },
+  { title: "Titanic", genre: "Drame / Romance", synopsis: "Un amour naît entre deux passagers de classes opposées à bord d’un paquebot maudit.", watch: "Disney+" },
+  { title: "The Lord of the Rings: The Fellowship of the Ring", genre: "Fantasy / Aventure", synopsis: "Un Hobbit doit détruire un anneau maléfique pour sauver la Terre du Milieu.", watch: "Amazon Prime" },
+  { title: "Star Wars: A New Hope", genre: "Science-fiction / Aventure", synopsis: "Un jeune fermier rejoint la résistance contre un empire galactique tyrannique.", watch: "Disney+" },
+  { title: "The Silence of the Lambs", genre: "Thriller / Horreur", synopsis: "Une agente du FBI demande l’aide d’un tueur pour traquer un autre psychopathe.", watch: "Netflix" },
+  { title: "Se7en", genre: "Thriller / Policier", synopsis: "Deux détectives pourchassent un tueur qui s’inspire des sept péchés capitaux.", watch: "HBO Max" },
+  { title: "Saving Private Ryan", genre: "Guerre / Drame", synopsis: "Des soldats risquent leur vie pour sauver un frère de guerre.", watch: "Paramount+" },
+  { title: "The Green Mile", genre: "Drame / Fantastique", synopsis: "Un gardien de prison découvre un détenu doté de pouvoirs surnaturels.", watch: "Netflix" },
+  { title: "Goodfellas", genre: "Crime / Biopic", synopsis: "La vie réelle d’un gangster dans la mafia new-yorkaise.", watch: "Amazon Prime" },
+  { title: "The Prestige", genre: "Mystère / Drame", synopsis: "Deux magiciens rivaux s'affrontent dans une guerre de secrets et d'illusions.", watch: "Disney+" },
+  { title: "Whiplash", genre: "Drame / Musique", synopsis: "Un jeune batteur affronte un professeur tyrannique dans une école prestigieuse.", watch: "Netflix" },
+  { title: "La La Land", genre: "Musical / Romance", synopsis: "Un musicien et une actrice poursuivent leurs rêves à Los Angeles.", watch: "Amazon Prime" },
+  { title: "Joker", genre: "Drame / Psychologique", synopsis: "L’histoire d’un comédien brisé qui devient un symbole de chaos.", watch: "HBO Max" },
+  { title: "The Social Network", genre: "Biopic / Tech", synopsis: "La naissance mouvementée de Facebook et la chute d’amitiés.", watch: "Netflix" },
+  { title: "Inglourious Basterds", genre: "Guerre / Action", synopsis: "Un commando américain veut tuer les dirigeants nazis dans la France occupée.", watch: "Amazon Prime" },
+  { title: "The Wolf of Wall Street", genre: "Biopic / Comédie", synopsis: "L’ascension folle d’un courtier de Wall Street accro à la démesure.", watch: "Netflix" },
+  { title: "The Grand Budapest Hotel", genre: "Comédie / Aventure", synopsis: "Un concierge excentrique et son apprenti vivent des aventures rocambolesques.", watch: "Disney+" },
+  { title: "Django Unchained", genre: "Western / Action", synopsis: "Un esclave affranchi part à la recherche de sa femme enchaînée.", watch: "Netflix" },
+  { title: "1917", genre: "Guerre / Drame", synopsis: "Deux soldats britanniques doivent traverser le no man’s land pour sauver une armée.", watch: "Amazon Prime" },
+  { title: "Requiem for a Dream", genre: "Drame / Psychologique", synopsis: "La descente aux enfers de quatre personnages accros à leurs illusions.", watch: "Netflix" },
+  { title: "Her", genre: "Science-fiction / Romance", synopsis: "Un homme tombe amoureux de son intelligence artificielle.", watch: "Amazon Prime" },
+  { title: "The Truman Show", genre: "Comédie / Drame", synopsis: "Un homme découvre que sa vie entière est une émission de télé-réalité.", watch: "Paramount+" },
+  { title: "American Beauty", genre: "Drame / Satire", synopsis: "Un homme en crise de la quarantaine bouleverse sa vie banale en banlieue.", watch: "HBO Max" },
+  { title: "Memento", genre: "Thriller / Mystère", synopsis: "Un homme atteint d’amnésie court-termine tente de retrouver l’assassin de sa femme.", watch: "Amazon Prime" },
+  { title: "Parasite", genre: "Thriller / Drame", synopsis: "Une famille pauvre s’infiltre dans une riche maison avec des conséquences tragiques.", watch: "Canal+" },
+  { title: "Spirited Away", genre: "Animation / Fantastique", synopsis: "Une jeune fille traverse un monde magique peuplé d’esprits et de dieux.", watch: "Netflix" },
+  { title: "The Lion King", genre: "Animation / Aventure", synopsis: "Le jeune Simba doit retrouver sa place dans le cycle de la vie.", watch: "Disney+" },
+  { title: "Toy Story", genre: "Animation / Comédie", synopsis: "Les jouets d’un garçon prennent vie quand il ne regarde pas.", watch: "Disney+" },
+  { title: "Avengers: Endgame", genre: "Action / Super-héros", synopsis: "Les Avengers unissent leurs forces pour vaincre Thanos.", watch: "Disney+" },
+  { title: "Black Panther", genre: "Action / Super-héros", synopsis: "Le roi T’Challa défend Wakanda, son royaume caché et avancé technologiquement.", watch: "Disney+" },
+  { title: "Shutter Island", genre: "Thriller / Psychologique", synopsis: "Deux agents enquêtent sur une disparition dans un asile isolé.", watch: "Netflix" },
+  { title: "The Departed", genre: "Policier / Thriller", synopsis: "Un agent infiltré et une taupe s’affrontent dans un jeu dangereux.", watch: "Amazon Prime" },
+  { title: "Blade Runner 2049", genre: "Science-fiction / Cyberpunk", synopsis: "Un Blade Runner découvre un secret qui pourrait détruire ce qu’il reste de société.", watch: "Netflix" },
+  { title: "Casino", genre: "Crime / Biopic", synopsis: "La montée et la chute d’un parrain du jeu à Las Vegas.", watch: "Amazon Prime" },
+  { title: "The Irishman", genre: "Crime / Historique", synopsis: "Un tueur à gages revient sur sa vie dans la mafia.", watch: "Netflix" },
+  { title: "Casablanca", genre: "Classique / Romance", synopsis: "Un expatrié américain doit choisir entre l’amour et le devoir.", watch: "Amazon Prime" },
+  { title: "Schindler’s List", genre: "Drame / Historique", synopsis: "Un industriel allemand sauve plus de mille Juifs pendant la Shoah.", watch: "Netflix" },
+  { title: "12 Angry Men", genre: "Drame / Justice", synopsis: "Douze jurés doivent décider du destin d’un jeune accusé.", watch: "YouTube" },
+  { title: "Cinema Paradiso", genre: "Drame / Nostalgie", synopsis: "Un réalisateur se remémore sa passion du cinéma et son enfance.", watch: "Amazon Prime" },
+];
+
+
+    let myList = [];
+    let currentMovie = null;
+
+    function generateMovie() {
+      const movieDiv = document.getElementById('movie');
+      const watchDiv = movieDiv.querySelector('.watch');
+      const random = movies[Math.floor(Math.random() * movies.length)];
+      currentMovie = random;
+
+      movieDiv.querySelector('.title').textContent = random.title;
+      movieDiv.querySelector('.genre').textContent = random.genre;
+      movieDiv.querySelector('.synopsis').textContent = random.synopsis;
+      watchDiv.textContent = "📍 Où le regarder : " + random.watch;
+      watchDiv.style.display = "block";
+
+      movieDiv.classList.remove('active');
+      void movieDiv.offsetWidth;
+      movieDiv.classList.add('active');
+
+      document.getElementById("myListView").style.display = "none";
+    }
+
+    function addToList() {
+      if (currentMovie && !myList.some(m => m.title === currentMovie.title)) {
+        myList.push(currentMovie);
+        alert(`Ajouté à ta liste : "${currentMovie.title}"`);
+      } else {
+        alert("Ce film est déjà dans ta liste !");
+      }
+    }
+
+    function viewMyList() {
+      const listDiv = document.getElementById("myListView");
+      listDiv.innerHTML = "<h2>🎬 Ma Liste :</h2>";
+
+      if (myList.length === 0) {
+        listDiv.innerHTML += "<p>Aucun film pour l'instant 😢</p>";
+      } else {
+        myList.forEach(film => {
+          const div = document.createElement("div");
+          div.className = "movieItem";
+          div.innerHTML = `<strong>${film.title}</strong> - <em>${film.genre}</em>`;
+          div.onclick = () => showMovieDetails(film);
+          listDiv.appendChild(div);
+        });
+      }
+
+      listDiv.style.display = "block";
+      listDiv.classList.add("active");
+    }
+
+    function showMovieDetails(film) {
+      const movieDiv = document.getElementById('movie');
+      movieDiv.querySelector('.title').textContent = film.title;
+      movieDiv.querySelector('.genre').textContent = film.genre;
+      movieDiv.querySelector('.synopsis').textContent = film.synopsis;
+      movieDiv.querySelector('.watch').textContent = "📍 Où le regarder : " + film.watch;
+      movieDiv.querySelector('.watch').style.display = "block";
+
+      movieDiv.classList.remove('active');
+      void movieDiv.offsetWidth;
+      movieDiv.classList.add('active');
+
+      document.getElementById("myListView").style.display = "none";
+    }
+  </script>
+</body>
+</html>
